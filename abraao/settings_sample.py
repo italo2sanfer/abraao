@@ -23,7 +23,7 @@ DATABASES = {
     'default': BANCOS['mysql'],
 }
 
-DEV = True
+DEV = False
 if DEV:
     DATABASES = {
         'default': BANCOS['postgres'],

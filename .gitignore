@@ -1,0 +1,6 @@
+*.pyc
+*~
+*.db
+*.swp
+deploy/
+settings.py
