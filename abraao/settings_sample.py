@@ -1,4 +1,5 @@
 from .settings_base import *
+import os
 
 BANCOS = {
     'postgres': {
@@ -11,10 +12,10 @@ BANCOS = {
     },
     'mysql': {
         'ENGINE': 'django.db.backends.mysql', 
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+        'NAME': os.environ.get('MYSQL_DATABASE'),
+        'USER': os.environ.get('MYSQL_USER'),
+        'PASSWORD': os.environ.get('MYSQL_PASSWORD'),
+        'HOST': os.environ.get('MYSQL_DATABASE', 'db_mysql'),
         'PORT': '3306',
     },
 }
@@ -26,7 +27,7 @@ DATABASES = {
 DEV = False
 if DEV:
     DATABASES = {
-        'default': BANCOS['postgres'],
+        'default': BANCOS['mysql'],
     }
     MEDIA_ROOT = '/home/dev/code/media'
     STATIC_ROOT = '/home/dev/code/static'

@@ -5,7 +5,7 @@ ENV PYTHONUNBUFFERED=1
 RUN apt update
 RUN apt install -y vim git build-essential \
     python3-dev python3-setuptools libldap2-dev libsasl2-dev \
-    zlib1g-dev libxmlsec1-dev libblas-dev liblapack-dev libatlas-base-dev \
+    zlib1g-dev libxmlsec1-dev libblas-dev liblapack-dev default-mysql-client \
     libssl-dev libffi-dev poppler-utils locales postgresql-client iputils-ping
 RUN pip install --upgrade pip
 
