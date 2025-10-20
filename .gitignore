@@ -4,3 +4,4 @@
 *.swp
 deploy/
 settings.py
+docker-compose.yml
