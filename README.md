@@ -1,6 +1,11 @@
-# abraao
-Django para uso geral
+# Abraham
+Django for general use.
 
+# Tasks
+- Repassar senhas que faltam
+- Gerar os arquivos json novamente
+- Jogar arquivo modificado no cofre;
+- Jogar os jsons no cofre
 
 # Accessing mysql
 ```
@@ -14,5 +19,10 @@ MySQL [abraao]> show tables;
 
 # Create superuser
 ```
-python manage.py createsuperuser
+$ python manage.py createsuperuser
+```
+
+# Backup data
+```
+$ python manage.py dumpdata passapp.service --indent 2 > passapp/fixtures/db_service.json
 ```

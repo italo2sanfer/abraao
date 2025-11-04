@@ -1,7 +1,6 @@
 services:
   db_mysql:
     image: mysql:8.0
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: your_root_password
       MYSQL_DATABASE: your_database_name
@@ -18,11 +17,11 @@ services:
       - '/home/italo/.ssh:/home/dev/.ssh'
       - '/tmp/.X11-unix/:/tmp/.X11-unix/'
     environment:
-        MYSQL_ROOT_PASSWORD: your_root_password
-        MYSQL_DATABASE: your_database_name
-        MYSQL_USER: your_user
-        MYSQL_PASSWORD: your_user_password
-        DISPLAY: $DISPLAY
+      MYSQL_ROOT_PASSWORD: your_root_password
+      MYSQL_DATABASE: your_database_name
+      MYSQL_USER: your_user
+      MYSQL_PASSWORD: your_user_password
+      DISPLAY: $DISPLAY
     depends_on:
       - db_mysql
     ports:

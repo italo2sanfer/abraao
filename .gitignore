@@ -5,3 +5,4 @@
 deploy/
 settings.py
 docker-compose.yml
+__pycache__/
