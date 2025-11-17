@@ -22,5 +22,6 @@ from common import views as common_views
 urlpatterns = [
     path('', common_views.index),
     path('common/', include('common.urls')),
+    path('passapp/', include('passapp.urls')),
     path("admin/", admin.site.urls),
 ]

@@ -1,0 +1,26 @@
+{% extends "common/index.html" %}
+{% block content %}
+    <div class="container">
+        <h2>{{ title }}</h2>
+        <small>
+            The head of csv file must have the collumn names equal to the field names of the Joao model you want to populate.
+        </small>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <label for="model">Modelo:</label>
+            <select name="model" id="model" required>
+            <option value="">-- selecione --</option>
+            {% for value, label in models %}
+                <option value="{{ value }}">{{ label }} ({{ value }})</option>
+            {% endfor %}
+            </select>
+            <div>
+                <label for="csv_file">CSV file</label>
+                <input type="file" id="csv_file" name="csv_file" accept=".csv,text/csv">
+            </div>
+            <div>
+                 <button type="submit">Import</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
