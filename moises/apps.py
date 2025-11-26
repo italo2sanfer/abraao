@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class PassappConfig(AppConfig):
+class MoisesConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'passapp'
+    name = 'moises'

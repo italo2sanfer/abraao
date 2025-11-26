@@ -17,11 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
-from common import views as common_views
+from comum import views as comum_views
 
 urlpatterns = [
-    path('', common_views.index),
-    path('common/', include('common.urls')),
-    path('passapp/', include('passapp.urls')),
+    path('', comum_views.index),
+    path('comum/', include('comum.urls')),
+    path('moises/', include('moises.urls')),
     path("admin/", admin.site.urls),
 ]

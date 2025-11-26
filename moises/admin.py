@@ -37,7 +37,7 @@ class JoaoAdmin(admin.ModelAdmin):
     list_filter = ['who']
 
     def show_actions(self, obj):
-        out = f"<a class='success' href='/admin/passapp/joao/{obj.id}/change/'>E</a></li>"
+        out = f"<a class='success' href='/admin/moises/joao/{obj.id}/change/'>E</a></li>"
         return mark_safe(''.join(out))
     show_actions.short_description = '#'
 
@@ -58,7 +58,7 @@ class JoaoAdmin(admin.ModelAdmin):
             if judite.exists():
                 judite = judite.first()
                 _id, text = judite.id, code[0]+":"+code[1]
-            out += f"<li><a href='/admin/passapp/judite/{_id}/change/'>E</a>&nbsp;<a href='/passapp/judite/{_id}/'>{text}</a></li>"
+            out += f"<li><a href='/admin/moises/judite/{_id}/change/'>E</a>&nbsp;<a href='/moises/judite/{_id}/'>{text}</a></li>"
         out += f"</ul>"
         return mark_safe(''.join(out))
     get_access.short_description = 'access'

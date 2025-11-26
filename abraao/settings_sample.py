@@ -24,8 +24,15 @@ DATABASES = {
     'default': BANCOS['mysql'],
 }
 
+PASSAPP_API_TOKEN = "token-producao-aqui"
+MEDIA_ROOT = '/home/Italo2sanfer/abraao/media'
+STATIC_ROOT = '/home/Italo2sanfer/abraao/static'
+
 DEV = False
 if DEV:
+    PASSAPP_API_TOKEN = "token-desenvolvimento-aqui"
+    # Em DEV, permitir todos (mais simples). Em produção especifique origens seguras em CORS_ALLOWED_ORIGINS
+    CORS_ALLOW_ALL_ORIGINS = True
     DATABASES = {
         'default': BANCOS['mysql'],
     }

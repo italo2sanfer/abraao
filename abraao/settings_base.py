@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'common.apps.CommonConfig',
-    'passapp.apps.PassappConfig',
+    "corsheaders",
+    "comum.apps.ComumConfig",
+    "moises.apps.MoisesConfig",
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF = "abraao.urls"
@@ -126,7 +128,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
-MEDIA_ROOT = '/home/Italo2sanfer/abraao/media'
 MEDIA_URL = '/media/'
-STATIC_ROOT = '/home/Italo2sanfer/abraao/static'
 STATIC_URL = '/static/'

@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
                 ('login', models.CharField(max_length=70, verbose_name='Login')),
                 ('access', models.CharField(max_length=500, verbose_name='Access')),
                 ('description', models.CharField(blank=True, max_length=500, verbose_name='Description')),
-                ('paty', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='passapp.paty', verbose_name='Paty')),
+                ('paty', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='moises.paty', verbose_name='Paty')),
             ],
         ),
     ]

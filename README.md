@@ -18,6 +18,6 @@ $ python manage.py createsuperuser
 
 # Backup/Restore data
 ```
-$ python manage.py loaddata passapp/fixtures/pass_data.json
-$ python manage.py dumpdata passapp.service --indent 2 > passapp/fixtures/db_service.json
+$ python manage.py loaddata moises/fixtures/pass_data.json
+$ python manage.py dumpdata moises.service --indent 2 > moises/fixtures/db_service.json
 ```
