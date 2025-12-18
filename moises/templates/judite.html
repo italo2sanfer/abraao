@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}    
+    <script>
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+        async function copy_to_clipboard(value) {
+            try {
+                await navigator.clipboard.writeText(value);
+                await sleep(500);
+            } catch (err) {
+                console.error('Error: ', err);
+            }
+        }        
+        async function sky() {
+                var inputElement = document.getElementById("sky");
+                copy_to_clipboard(inputElement.value)
+                alert(";) Copied!");
+        }
+        async function clean() {
+                copy_to_clipboard("Churras")
+                alert("Cleaned!");
+        }        
+    </script>
+    <input type="hidden" id="sky" value="{{ judite.passwd }}">
+    <p><strong>Code:</strong> {{ judite.code }}</p>
+    <p><strong>Description:</strong> {{ judite.description|linebreaksbr }}</p>
+    <p>
+        <strong>Passwd:</strong>
+        <button onclick="sky()">Copy</button>&nbsp;
+        <button onclick="clean()">Clean</button>
+    </p>
+{% endblock %}

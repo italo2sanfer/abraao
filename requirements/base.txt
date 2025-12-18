@@ -1,7 +1,8 @@
 Django==4.2
+django-cors-headers
+django-recaptcha
 argparse
 ipython
 psycopg2
 requests
-django-recaptcha
 mysqlclient

@@ -1,6 +1,5 @@
-# abraao
-Django para uso geral
-
+# Abraham
+Django for general use.
 
 # Accessing mysql
 ```
@@ -14,5 +13,11 @@ MySQL [abraao]> show tables;
 
 # Create superuser
 ```
-python manage.py createsuperuser
+$ python manage.py createsuperuser
+```
+
+# Backup/Restore data
+```
+$ python manage.py loaddata moises/fixtures/pass_data.json
+$ python manage.py dumpdata moises.service --indent 2 > moises/fixtures/db_service.json
 ```
