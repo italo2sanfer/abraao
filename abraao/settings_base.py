@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "comum.apps.ComumConfig",
     "moises.apps.MoisesConfig",
+    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [

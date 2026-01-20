@@ -21,3 +21,8 @@ $ python manage.py createsuperuser
 $ python manage.py loaddata moises/fixtures/pass_data.json
 $ python manage.py dumpdata moises.service --indent 2 > moises/fixtures/db_service.json
 ```
+
+Comando que exporta em json e csv com data e hora
+```
+$ python manage.py export_models
+```
