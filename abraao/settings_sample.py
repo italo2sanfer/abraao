@@ -39,3 +39,5 @@ if DEV:
     MEDIA_ROOT = '/home/dev/code/media'
     STATIC_ROOT = '/home/dev/code/static'
     ALLOWED_HOSTS += ['localhost']
+
+TOKEN_EXPIRY = 1200  # 20 minutos em segundos

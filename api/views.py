@@ -4,27 +4,54 @@ from django.views.decorators.http import require_http_methods
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from django.db.models import Q
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
+from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
 from moises.models import Judite, Joao
+from api.utils import is_token_valid, generate_temp_token
+
+@csrf_exempt
+@require_POST
+def obtain_token(request):
+    """
+    POST /api/obtain-token/
+    Body JSON: {"username": "<username>", "password": "<password>"}
+    Retorna: {"token": "<token>", "expires_in": 300}
+    """
+    import json
+    try:
+        data = json.loads(request.body)
+        username = data.get('username')
+        password = data.get('password')
+    except (json.JSONDecodeError, KeyError):
+        return JsonResponse({"detail": "Invalid JSON or missing username/password."}, status=400)
+
+    user = authenticate(username=username, password=password)
+    if user is not None and user.is_active:
+        token = generate_temp_token()
+        return JsonResponse({"token": token, "expires_in": 300})
+    else:
+        return JsonResponse({"detail": "Invalid credentials."}, status=401)
 
 @require_http_methods(["GET"])
 def _check_token(request):
     auth = request.META.get("HTTP_AUTHORIZATION", "")
-    if auth.startswith("Token "):
+    if auth.startswith("Bearer "):
         token = auth.split(" ", 1)[1]
-        if getattr(settings, "PASSAPP_API_TOKEN", None) and token == settings.PASSAPP_API_TOKEN:
+        if is_token_valid(token):
             return True
     return False
 
 @require_http_methods(["GET", "OPTIONS"])
 def joao_search(request):
     """
-    API autenticada (Token) para buscar registros de Joao.
+    API autenticada (Token temporário) para buscar registros de Joao.
     Query param: ?q=<valor>
     Pesquisa em: paty__name, paty__url, who, login, access, description
     Retorna lista JSON com dados de Joao + paty. No campo `access` cada código
     recebe a senha clara do Judite (campo passwd) entre parênteses logo após o código.
-    Autenticação: header HTTP Authorization: Token <PASSAPP_API_TOKEN>
+    Autenticação: header HTTP Authorization: Bearer <token_temporario>
+    Token obtido via POST /api/obtain-token/ com username/password
     """
     # Responde preflight sem exigir autenticação
     if request.method == "OPTIONS":
@@ -90,7 +117,8 @@ def joao_search(request):
 @require_GET
 def judite_passwd(request, code):
     """
-    GET /.../judite/<code>/passwd/  -> {"code": "<code>", "passwd": "<passwd>"}
+    GET /api/judite/<code>/passwd/  -> {"code": "<code>", "passwd": "<passwd>"}
+    Autenticação: header HTTP Authorization: Bearer <token_temporario>
     """
     if not _check_token(request):
         return JsonResponse({"detail": "Authentication credentials were not provided or invalid."}, status=401)
