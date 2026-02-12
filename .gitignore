@@ -7,3 +7,4 @@ data/
 settings.py
 docker-compose.yml
 __pycache__/
+.vscode/

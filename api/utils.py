@@ -47,3 +47,27 @@ def get_valid_token():
         return last_token
     else:
         return None
+
+def get_token_remaining_time(token):
+    """
+    Retorna o tempo restante de um token em segundos.
+    Retorna um dicionário com 'remaining_time' (int) ou 'error' (str).
+    """
+    try:
+        # Decodificar o token sem validar expiração para obter o payload
+        payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'], options={"verify_exp": False})
+        exp_timestamp = payload.get('exp')
+        
+        if not exp_timestamp:
+            return {'error': 'Token sem data de expiração'}
+        
+        current_time = int(time.time())
+        remaining_time = exp_timestamp - current_time
+        
+        # Se o tempo é negativo, o token já está expirado
+        if remaining_time < 0:
+            return {'error': 'Token expirado', 'remaining_time': 0}
+        
+        return {'remaining_time': remaining_time}
+    except jwt.InvalidTokenError as e:
+        return {'error': f'Token inválido: {str(e)}'}

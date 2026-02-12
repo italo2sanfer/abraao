@@ -1,6 +1,9 @@
 from .settings_base import *
 import os
 
+# To access codespace
+CSRF_TRUSTED_ORIGINS = ['https://localhost:8002']
+
 BANCOS = {
     'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',

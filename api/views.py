@@ -8,7 +8,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from moises.models import Judite, Joao
-from api.utils import is_token_valid, generate_temp_token
+from api.utils import is_token_valid, generate_temp_token, get_token_remaining_time
 
 @csrf_exempt
 @require_POST
@@ -125,3 +125,23 @@ def judite_passwd(request, code):
 
     obj = get_object_or_404(Judite, code=code)
     return JsonResponse({"code": obj.code, "passwd": obj.passwd})
+
+@require_GET
+def token_remaining_time(request):
+    """
+    GET /api/token/remaining-time/
+    Retorna o tempo restante do token em segundos.
+    Resposta: {"remaining_time": <segundos>} ou {"error": "<mensagem>"}
+    Autenticação: header HTTP Authorization: Bearer <token_temporario>
+    """
+    auth = request.META.get("HTTP_AUTHORIZATION", "")
+    if not auth.startswith("Bearer "):
+        return JsonResponse({"detail": "Authentication credentials were not provided."}, status=401)
+    
+    token = auth.split(" ", 1)[1]
+    result = get_token_remaining_time(token)
+    
+    if 'error' in result:
+        return JsonResponse(result, status=401)
+    
+    return JsonResponse(result)
