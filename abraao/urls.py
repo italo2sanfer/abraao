@@ -23,5 +23,6 @@ urlpatterns = [
     path('', comum_views.index),
     path('comum/', include('comum.urls')),
     path('moises/', include('moises.urls')),
+    path('api/', include('api.urls')),
     path("admin/", admin.site.urls),
 ]

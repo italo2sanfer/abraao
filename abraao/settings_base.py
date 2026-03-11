@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "comum.apps.ComumConfig",
     "moises.apps.MoisesConfig",
+    "api.apps.ApiConfig",
 ]
 
 MIDDLEWARE = [
@@ -130,3 +131,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
+
+# Cache configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}

@@ -4,15 +4,32 @@ from .models import Judite, Paty, Joao
 
 
 class JuditeAdmin(admin.ModelAdmin):
-    list_display = ['code', 'passwd', 'description']
+    list_display = ['code', 'passwd', 'get_description', 'get_ties']
     ordering = ('code',)
     search_fields = ('code', 'description')
     list_filter = ['code']
+
+    def get_description(self, obj):
+        out = ""
+        if obj.description:
+            out = f"<ul>"
+            for part in obj.description.split('<br>'):
+                out += f"<li>{part}</li>"
+            out += f"</ul>"
+        return mark_safe(''.join(out))
+    get_description.short_description = 'description'
+
+    def get_ties(self, obj):
+        ids_ties = list(Joao.objects.filter(access__contains=obj.code).values_list('id', flat=True))
+        out = f"<p>{','.join(map(str, ids_ties)) if ids_ties else 'Orphan'}</p>"
+        return mark_safe(''.join(out))
+    get_ties.short_description = 'ties'
+
 admin.site.register(Judite, JuditeAdmin)
 
 
 class PatyAdmin(admin.ModelAdmin):
-    list_display = ['name', 'url', 'get_description']
+    list_display = ['name', 'url', 'get_description', 'get_ties']
     ordering = ('name',)
     search_fields = ('name', 'url', 'description')
     list_filter = ['name']
@@ -26,6 +43,12 @@ class PatyAdmin(admin.ModelAdmin):
             out += f"</ul>"
         return mark_safe(''.join(out))
     get_description.short_description = 'description'
+
+    def get_ties(self, obj):
+        ids_ties = list(obj.joao_set.all().values_list('id', flat=True))
+        out = f"<p>{','.join(map(str, ids_ties)) if ids_ties else 'Orphan'}</p>"
+        return mark_safe(''.join(out))
+    get_ties.short_description = 'ties'    
 
 admin.site.register(Paty, PatyAdmin)
 

@@ -24,7 +24,8 @@ class Joao(models.Model):
         ('Angelica', 'Angelica'),
         ('Telia', 'Télia'),
         ('Valdir', 'Valdir'),
-        ('Penha', 'Penha')
+        ('Penha', 'Penha'),
+        ('IFF', 'IFF'),
     )
 
     paty = models.ForeignKey(Paty, verbose_name='Paty', on_delete=models.CASCADE)

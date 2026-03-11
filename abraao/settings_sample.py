@@ -1,6 +1,9 @@
 from .settings_base import *
 import os
 
+# To access codespace
+CSRF_TRUSTED_ORIGINS = ['https://localhost:8002']
+
 BANCOS = {
     'postgres': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -39,3 +42,5 @@ if DEV:
     MEDIA_ROOT = '/home/dev/code/media'
     STATIC_ROOT = '/home/dev/code/static'
     ALLOWED_HOSTS += ['localhost']
+
+TOKEN_EXPIRY = 1200  # 20 minutos em segundos
