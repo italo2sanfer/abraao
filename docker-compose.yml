@@ -1,0 +1,24 @@
+services:
+  db_mysql:
+    image: mysql:8.0
+    env_file:
+      - .env
+    ports:
+      - "${MYSQL_PORT}:${MYSQL_PORT}"
+    expose:
+      - "${MYSQL_PORT}"
+  web:
+    build: .
+    command: "python manage.py runserver 0.0.0.0:${APP_PORT}"
+    restart: always
+    volumes:
+      - '.:/home/${LOCAL_USER}/code'
+      - '/home/${LOCAL_USER}/.ssh:/home/${CONTAINER_USER}/.ssh'
+    env_file:
+      - .env
+    depends_on:
+      - db_mysql
+    ports:
+      - '${APP_PORT}:${APP_PORT}'
+    stdin_open: true
+    tty: true

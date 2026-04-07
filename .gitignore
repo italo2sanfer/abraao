@@ -1,10 +1,26 @@
-*.pyc
 *~
 *.db
 *.swp
 deploy/
 data/
-settings.py
-docker-compose.yml
+# Virtualenv
+.venv/
+env/
+venv/
+# Python cache
 __pycache__/
+*.pyc
+# Django
+*.log
+staticfiles/
+media/
+# Environment variables
+.env
+.env.*
+# MyPy / Ruff / Pytest
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+# VSCode / IDEs
 .vscode/
+.idea/

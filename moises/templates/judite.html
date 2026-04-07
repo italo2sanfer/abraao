@@ -1,6 +1,6 @@
 {% extends "admin/base_site.html" %}
 
-{% block content %}    
+{% block content %}
     <script>
         function sleep(ms) {
             return new Promise(resolve => setTimeout(resolve, ms));
@@ -12,7 +12,7 @@
             } catch (err) {
                 console.error('Error: ', err);
             }
-        }        
+        }
         async function sky() {
                 var inputElement = document.getElementById("sky");
                 copy_to_clipboard(inputElement.value)
@@ -21,7 +21,7 @@
         async function clean() {
                 copy_to_clipboard("Churras")
                 alert("Cleaned!");
-        }        
+        }
     </script>
     <input type="hidden" id="sky" value="{{ judite.passwd }}">
     <p><strong>Code:</strong> {{ judite.code }}</p>

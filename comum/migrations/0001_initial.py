@@ -4,23 +4,32 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Country',
+            name="Country",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=70, unique=True, verbose_name='Name')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "name",
+                    models.CharField(max_length=70, unique=True, verbose_name="Name"),
+                ),
             ],
             options={
-                'verbose_name': 'Country',
-                'verbose_name_plural': 'Countries',
-                'ordering': ('name',),
+                "verbose_name": "Country",
+                "verbose_name_plural": "Countries",
+                "ordering": ("name",),
             },
         ),
     ]

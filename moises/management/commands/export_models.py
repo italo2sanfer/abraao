@@ -1,10 +1,12 @@
-from django.core.management.base import BaseCommand
-from django.apps import apps
-from django.core import serializers
-from django.utils import timezone
-from django.conf import settings
-import os
 import csv
+import os
+
+from django.apps import apps
+from django.conf import settings
+from django.core import serializers
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+
 
 class Command(BaseCommand):
     help = "Exporta todos os modelos do app 'moises' em CSV e JSON. Arquivos em <BASE_DIR>/data."
@@ -30,7 +32,9 @@ class Command(BaseCommand):
             # CSV
             csv_fname = f"{model_name}_{now}.csv"
             csv_path = os.path.join(out_dir, csv_fname)
-            field_objs = [f for f in model._meta.get_fields() if f.concrete and not f.many_to_many]
+            field_objs = [
+                f for f in model._meta.get_fields() if f.concrete and not f.many_to_many
+            ]
             headers = [f.name for f in field_objs]
 
             with open(csv_path, "w", newline="", encoding="utf-8") as cf:

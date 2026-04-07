@@ -1,10 +1,13 @@
+import csv
+import io
+
 from django.apps import apps
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.views.decorators.http import require_http_methods, require_GET
-import csv, io
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_GET, require_http_methods
+
 from .models import Judite, Paty
 
 
@@ -12,7 +15,7 @@ from .models import Judite, Paty
 def judite(request, judite_id):
     judite = Judite.objects.get(pk=judite_id)
     title = f"Judite {judite.code}"
-    return render(request, 'judite.html', locals())
+    return render(request, "judite.html", locals())
 
 
 @require_http_methods(["GET", "POST"])
@@ -23,7 +26,7 @@ def import_data_model(request):
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
         for m in app_config.get_models()
-    ]    
+    ]
     if request.method == "POST":
         csv_file = request.FILES.get("csv_file")
         if not csv_file:
@@ -37,9 +40,10 @@ def import_data_model(request):
             return redirect("imp_data")
 
         # Campos permissíveis do modelo (omitindo auto-created, relations)
-        model = apps.get_model("moises", request.POST['model'])
+        model = apps.get_model("moises", request.POST["model"])
         model_fields = {
-            f.name for f in model._meta.get_fields()
+            f.name
+            for f in model._meta.get_fields()
             if getattr(f, "editable", True) and not getattr(f, "auto_created", False)
         }
 
@@ -53,7 +57,7 @@ def import_data_model(request):
                 continue
             try:
                 if model.__name__ == "Joao":
-                    data_['paty'] = Paty.objects.filter(name=data_['paty']).first()
+                    data_["paty"] = Paty.objects.filter(name=data_["paty"]).first()
                 data.append(data_)
             except Exception as e:
                 errors.append(f"Line {idx}: {e}")
@@ -63,7 +67,7 @@ def import_data_model(request):
                 messages.error(request, message)
         else:
             for d in data:
-                model.objects.create(**d)                
+                model.objects.create(**d)
             messages.success(request, f"{len(data)} registros importados.")
 
         return redirect("imp_data")
@@ -99,7 +103,8 @@ def export_data_model(request):
 
         # Campos permissíveis do modelo (omitindo auto-created, relations)
         model_fields = [
-            f.name for f in model._meta.get_fields()
+            f.name
+            for f in model._meta.get_fields()
             if getattr(f, "editable", True) and not getattr(f, "auto_created", False)
         ]
         # Prepare response
@@ -118,7 +123,9 @@ def export_data_model(request):
                 try:
                     val = getattr(obj, field)
                     # For related objects, use their string representation
-                    if hasattr(val, "__str__") and not isinstance(val, (str, bytes, int, float, type(None))):
+                    if hasattr(val, "__str__") and not isinstance(
+                        val, (str, bytes, int, float, type(None))
+                    ):
                         val = str(val)
                 except Exception:
                     val = ""

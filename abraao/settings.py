@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = "django-insecure-8-&pr41yqlu@+@u$4nps*$mi^%=drhgy&!8f&94q1#(0ktqxub
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['Italo2sanfer.pythonanywhere.com']
+ALLOWED_HOSTS = ["Italo2sanfer.pythonanywhere.com"]
 
 
 # Application definition
@@ -75,17 +76,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "abraao.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
-
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -129,12 +119,65 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # default static files settings for PythonAnywhere.
 # see https://help.pythonanywhere.com/pages/DjangoStaticFiles for more info
-MEDIA_URL = '/media/'
-STATIC_URL = '/static/'
+MEDIA_URL = "/media/"
+STATIC_URL = "/static/"
 
 # Cache configuration
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
+
+# To access codespace
+CSRF_TRUSTED_ORIGINS = ["https://localhost:8002"]
+
+BANCOS = {
+    "postgres": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "",
+        "USER": "",
+        "PASSWORD": "",
+        "HOST": "db",
+        "PORT": "5432",
+    },
+    "mysql": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.environ.get("MYSQL_DATABASE"),
+        "USER": os.environ.get("MYSQL_USER"),
+        "PASSWORD": os.environ.get("MYSQL_PASSWORD"),
+        "HOST": os.environ.get("MYSQL_HOST", "db_mysql"),
+        "PORT": os.environ.get("MYSQL_PORT"),
+    },
+    "sqlite": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
+    },
+}
+
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+DATABASES = {
+    "default": BANCOS["mysql"],
+}
+
+PASSAPP_API_TOKEN = os.environ.get(
+    "PASSAPP_API_TOKEN_PROD", "token-padrao-producao-aqui"
+)
+MEDIA_ROOT = f"/home/{os.environ.get('SERVER_USER')}/abraao/media"
+STATIC_ROOT = f"/home/{os.environ.get('SERVER_USER')}/abraao/static"
+
+DEV = False
+if DEV:
+    PASSAPP_API_TOKEN = os.environ.get("PASSAPP_API_TOKEN_DEV", "token-padrao-dev-aqui")
+    # Em DEV, permitir todos (mais simples). Em produção especifique origens seguras em CORS_ALLOWED_ORIGINS
+    CORS_ALLOW_ALL_ORIGINS = True
+    DATABASES = {
+        "default": BANCOS["mysql"],
+    }
+    MEDIA_ROOT = f"/home/{os.environ.get('CONTAINER_USER')}/code/media"
+    STATIC_ROOT = f"/home/{os.environ.get('CONTAINER_USER')}/code/static"
+    ALLOWED_HOSTS += ["localhost"]
+
+
+TOKEN_EXPIRY = 6000  # 1h (em segundos)

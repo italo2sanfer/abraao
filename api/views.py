@@ -1,14 +1,14 @@
-
-from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_http_methods
-from django.http import JsonResponse, HttpResponse
-from django.conf import settings
-from django.db.models import Q
-from django.views.decorators.http import require_GET, require_POST
 from django.contrib.auth import authenticate
+from django.db.models import Q
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from moises.models import Judite, Joao
-from api.utils import is_token_valid, generate_temp_token, get_token_remaining_time
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
+
+from api.utils import generate_temp_token, get_token_remaining_time, is_token_valid
+from moises.models import Joao, Judite
+from moises.utils import decrypt_password
+
 
 @csrf_exempt
 @require_POST
@@ -19,12 +19,15 @@ def obtain_token(request):
     Retorna: {"token": "<token>", "expires_in": 300}
     """
     import json
+
     try:
         data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
+        username = data.get("username")
+        password = data.get("password")
     except (json.JSONDecodeError, KeyError):
-        return JsonResponse({"detail": "Invalid JSON or missing username/password."}, status=400)
+        return JsonResponse(
+            {"detail": "Invalid JSON or missing username/password."}, status=400
+        )
 
     user = authenticate(username=username, password=password)
     if user is not None and user.is_active:
@@ -32,6 +35,7 @@ def obtain_token(request):
         return JsonResponse({"token": token, "expires_in": 300})
     else:
         return JsonResponse({"detail": "Invalid credentials."}, status=401)
+
 
 @require_http_methods(["GET"])
 def _check_token(request):
@@ -41,6 +45,7 @@ def _check_token(request):
         if is_token_valid(token):
             return True
     return False
+
 
 @require_http_methods(["GET", "OPTIONS"])
 def joao_search(request):
@@ -60,7 +65,10 @@ def joao_search(request):
         return resp
 
     if not _check_token(request):
-        return JsonResponse({"detail": "Authentication credentials were not provided or invalid."}, status=401)
+        return JsonResponse(
+            {"detail": "Authentication credentials were not provided or invalid."},
+            status=401,
+        )
 
     q = (request.GET.get("q") or "").strip()
     if not q:
@@ -103,16 +111,19 @@ def joao_search(request):
                 new_parts.append(part)
         access_with_pw = "<br>".join(new_parts)
 
-        results.append({
-            "id": obj.id,
-            "paty": paty,
-            "who": obj.who,
-            "login": obj.login,
-            "access": access_with_pw,
-            "description": obj.description,
-        })
+        results.append(
+            {
+                "id": obj.id,
+                "paty": paty,
+                "who": obj.who,
+                "login": obj.login,
+                "access": access_with_pw,
+                "description": obj.description,
+            }
+        )
 
     return JsonResponse(results, safe=False)
+
 
 @require_GET
 def judite_passwd(request, code):
@@ -121,10 +132,15 @@ def judite_passwd(request, code):
     Autenticação: header HTTP Authorization: Bearer <token_temporario>
     """
     if not _check_token(request):
-        return JsonResponse({"detail": "Authentication credentials were not provided or invalid."}, status=401)
+        return JsonResponse(
+            {"detail": "Authentication credentials were not provided or invalid."},
+            status=401,
+        )
 
     obj = get_object_or_404(Judite, code=code)
-    return JsonResponse({"code": obj.code, "passwd": obj.passwd})
+    passwd = decrypt_password(obj.code, obj.passwd)
+    return JsonResponse({"code": obj.code, "passwd": passwd})
+
 
 @require_GET
 def token_remaining_time(request):
@@ -136,12 +152,14 @@ def token_remaining_time(request):
     """
     auth = request.META.get("HTTP_AUTHORIZATION", "")
     if not auth.startswith("Bearer "):
-        return JsonResponse({"detail": "Authentication credentials were not provided."}, status=401)
-    
+        return JsonResponse(
+            {"detail": "Authentication credentials were not provided."}, status=401
+        )
+
     token = auth.split(" ", 1)[1]
     result = get_token_remaining_time(token)
-    
-    if 'error' in result:
+
+    if "error" in result:
         return JsonResponse(result, status=401)
-    
+
     return JsonResponse(result)
