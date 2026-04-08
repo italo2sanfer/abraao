@@ -5,15 +5,17 @@ services:
       - .env
     ports:
       - "${MYSQL_PORT}:${MYSQL_PORT}"
-    expose:
-      - "${MYSQL_PORT}"
+    restart: always
   web:
-    build: .
+    build:
+      context: .
+      args:
+        SYSTEM_USER: ${SYSTEM_USER}
     command: "python manage.py runserver 0.0.0.0:${APP_PORT}"
     restart: always
     volumes:
-      - '.:/home/${LOCAL_USER}/code'
-      - '/home/${LOCAL_USER}/.ssh:/home/${CONTAINER_USER}/.ssh'
+      - '.:/home/${SYSTEM_USER}/abraao'
+      - '/home/${LOCAL_USER}/.ssh:/home/${SYSTEM_USER}/.ssh'
     env_file:
       - .env
     depends_on:

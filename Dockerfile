@@ -1,4 +1,7 @@
 FROM python:3.12
+
+ARG SYSTEM_USER
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -14,11 +17,11 @@ ENV LANG=pt_BR.UTF-8
 ENV LANGUAGE=pt_BR:pt
 ENV LC_ALL=pt_BR.UTF-8
 
-RUN adduser --disabled-password dev
-USER dev
-WORKDIR /home/dev/code
-ENV PATH="/home/dev/.local/bin:${PATH}"
+RUN adduser --disabled-password $SYSTEM_USER
+USER $SYSTEM_USER
+WORKDIR /home/$SYSTEM_USER/abraao
+ENV PATH="/home/$SYSTEM_USER/.local/bin:${PATH}"
 RUN git config --global url."https://".insteadOf git://
 
-ADD --chown=dev:dev requirements/ ./requirements
+ADD --chown=$SYSTEM_USER:$SYSTEM_USER requirements/ ./requirements
 RUN pip install -r requirements/development.txt

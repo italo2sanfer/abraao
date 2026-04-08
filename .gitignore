@@ -16,7 +16,6 @@ staticfiles/
 media/
 # Environment variables
 .env
-.env.*
 # MyPy / Ruff / Pytest
 .mypy_cache/
 .ruff_cache/

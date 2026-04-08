@@ -13,14 +13,14 @@ def generate_temp_token():
     Gera um token temporário que expira em 5 minutos.
     """
     payload = {
-        "exp": int(time.time()) + settings.TOKEN_EXPIRY,
+        "exp": int(time.time()) + int(settings.TOKEN_EXPIRY),
         "iat": int(time.time()),
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
     # Armazenar no cache para verificação rápida
-    cache.set(f"temp_token_{token}", True, timeout=settings.TOKEN_EXPIRY)
+    cache.set(f"temp_token_{token}", True, timeout=int(settings.TOKEN_EXPIRY))
     # Armazenar o último token gerado
-    cache.set(CACHE_KEY_LAST_TOKEN, token, timeout=settings.TOKEN_EXPIRY)
+    cache.set(CACHE_KEY_LAST_TOKEN, token, timeout=int(settings.TOKEN_EXPIRY))
     return token
 
 

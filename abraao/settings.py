@@ -21,16 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-8-&pr41yqlu@+@u$4nps*$mi^%=drhgy&!8f&94q1#(0ktqxub"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ["Italo2sanfer.pythonanywhere.com"]
-
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -158,26 +151,19 @@ BANCOS = {
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 DATABASES = {
-    "default": BANCOS["mysql"],
+    "default": BANCOS[os.environ.get("DB_TYPE")],
 }
 
 PASSAPP_API_TOKEN = os.environ.get(
     "PASSAPP_API_TOKEN_PROD", "token-padrao-producao-aqui"
 )
-MEDIA_ROOT = f"/home/{os.environ.get('SERVER_USER')}/abraao/media"
-STATIC_ROOT = f"/home/{os.environ.get('SERVER_USER')}/abraao/static"
+MEDIA_ROOT = f"/home/{os.environ.get('SYSTEM_USER')}/abraao/media"
+STATIC_ROOT = f"/home/{os.environ.get('SYSTEM_USER')}/abraao/static"
 
-DEV = False
-if DEV:
-    PASSAPP_API_TOKEN = os.environ.get("PASSAPP_API_TOKEN_DEV", "token-padrao-dev-aqui")
-    # Em DEV, permitir todos (mais simples). Em produção especifique origens seguras em CORS_ALLOWED_ORIGINS
+ALLOWED_HOSTS = [os.environ.get("SERVER_ADDRESS"), "localhost"]
+TOKEN_EXPIRY = os.environ.get("TOKEN_EXPIRY", 3600)  # 1h (seconds)
+
+DEBUG = os.environ.get("DEBUG", "False").lower() in ("true", "1", "t")
+if DEBUG:
+    # Em DEV, allow all (more simple). Im production, be specifc about the sources in CORS_ALLOWED_ORIGINS
     CORS_ALLOW_ALL_ORIGINS = True
-    DATABASES = {
-        "default": BANCOS["mysql"],
-    }
-    MEDIA_ROOT = f"/home/{os.environ.get('CONTAINER_USER')}/code/media"
-    STATIC_ROOT = f"/home/{os.environ.get('CONTAINER_USER')}/code/static"
-    ALLOWED_HOSTS += ["localhost"]
-
-
-TOKEN_EXPIRY = 6000  # 1h (em segundos)
