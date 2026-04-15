@@ -89,7 +89,6 @@ def joao_search(request):
         paty = None
         if obj.paty:
             paty = {
-                "id": obj.paty.id,
                 "name": obj.paty.name,
                 "url": obj.paty.url,
                 "description": obj.paty.description,
@@ -101,19 +100,13 @@ def joao_search(request):
         for part in parts:
             if ":" in part:
                 label, code = part.split(":", 1)
-                jud = Judite.objects.filter(code=code).first()
-                passwd = jud.passwd if jud else ""
-                if passwd:
-                    new_parts.append(f"{label}:{code}({passwd})")
-                else:
-                    new_parts.append(f"{label}:{code}")
+                new_parts.append(f"{label}:{code}")
             else:
                 new_parts.append(part)
         access_with_pw = "<br>".join(new_parts)
 
         results.append(
             {
-                "id": obj.id,
                 "paty": paty,
                 "who": obj.who,
                 "login": obj.login,
