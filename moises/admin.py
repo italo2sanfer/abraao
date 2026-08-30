@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from .models import Joao, Judite, Paty
+from .models import Joao, Judite, Paty, Davi, Group
 from .utils import encrypt_password
 
 
@@ -38,9 +38,6 @@ class JuditeAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-admin.site.register(Judite, JuditeAdmin)
-
-
 class PatyAdmin(admin.ModelAdmin):
     list_display = ["name", "url", "get_description", "get_ties"]
     ordering = ("name",)
@@ -66,21 +63,18 @@ class PatyAdmin(admin.ModelAdmin):
     get_ties.short_description = "ties"
 
 
-admin.site.register(Paty, PatyAdmin)
-
-
 class JoaoAdmin(admin.ModelAdmin):
     list_display = [
         "show_actions",
         "get_paty",
-        "who",
+        "group",
         "login",
         "get_access",
         "get_description",
     ]
     ordering = ("paty",)
-    search_fields = ("paty__name", "paty__url", "who", "login", "access", "description")
-    list_filter = ["who"]
+    search_fields = ("paty__name", "paty__url", "group__name", "login", "access", "description")
+    list_filter = ["group"]
 
     def show_actions(self, obj):
         out = (
@@ -130,4 +124,16 @@ class JoaoAdmin(admin.ModelAdmin):
     get_description.short_description = "description"
 
 
+class DaviAdmin(admin.ModelAdmin):
+    list_display = ["user", "role"]
+
+
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ["name", "description"]
+
+
+admin.site.register(Judite, JuditeAdmin)
+admin.site.register(Paty, PatyAdmin)
 admin.site.register(Joao, JoaoAdmin)
+admin.site.register(Davi, DaviAdmin)
+admin.site.register(Group, GroupAdmin)

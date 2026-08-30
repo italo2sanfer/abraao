@@ -1,7 +1,26 @@
 from django.db import models
 
 
+class Davi(models.Model):
+    ROLE_CHOICES = (
+        ("admin", "Admin"),
+        ("Own", "Own"),
+    )
+
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    role = models.CharField("Role", choices=ROLE_CHOICES, max_length=50)
+
+
+class Group(models.Model):
+    davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)
+    name = models.CharField("Name", max_length=100, unique=True)
+    description = models.CharField("Description", max_length=500)
+
+    def __str__(self):
+        return f"{self.name}"
+
 class Judite(models.Model):
+    davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)
     code = models.CharField("Code", max_length=70, unique=True)
     passwd = models.CharField("Passwd", max_length=300, unique=True)
     description = models.CharField("Description", max_length=500, blank=True)
@@ -19,6 +38,7 @@ class Judite(models.Model):
 
 
 class Paty(models.Model):
+    davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)
     name = models.CharField("Name", max_length=100)
     url = models.CharField("URL", max_length=100, blank=True)
     description = models.CharField("Description", max_length=500, blank=True)
@@ -28,18 +48,9 @@ class Paty(models.Model):
 
 
 class Joao(models.Model):
-    WHO_CHOICES = (
-        ("Italo", "Italo"),
-        ("Vivia", "Vivia"),
-        ("Angelica", "Angelica"),
-        ("Telia", "Télia"),
-        ("Valdir", "Valdir"),
-        ("Penha", "Penha"),
-        ("IFF", "IFF"),
-    )
-
+    davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)
+    group = models.ForeignKey(Group, verbose_name="Group", on_delete=models.CASCADE)
     paty = models.ForeignKey(Paty, verbose_name="Paty", on_delete=models.CASCADE)
-    who = models.CharField("Who", choices=WHO_CHOICES, max_length=50)
     login = models.CharField("Login", max_length=70)
     access = models.CharField("Access", max_length=500)
     description = models.CharField("Description", max_length=500, blank=True)
