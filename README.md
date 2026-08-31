@@ -11,10 +11,11 @@ mysql --ssl=FALSE abraao -u abraao -h db_mysql -p
 MySQL [abraao]> show tables;
 ```
 
-# Create superuser
-```
-$ python manage.py createsuperuser
-```
+# Steps
+1. Create superuser;
+2. Create group named 'Own';
+3. Create user and put it in group 'Own';
+4. Create Davi with Role 'Own' for this user.
 
 # Backup/Restore data
 ```
@@ -40,9 +41,7 @@ $ docker run -it --name abraao-go -p 8002:8002  --network abraao-network --env-f
 - OK Criar classe grupo com nome Descrição
 - OK Colocar atributo profile em todas as classes de moises
 - -- Disparar forbiden para as views import e export atuais;
-  - -- Somente o role admin pode utilizar
-- -- Ajustar o export para entregar o novo formato do csv com:
-  - -- Username de Davi
-  - -- Role de Davi
-  - -- Name de Group
+  - -- Somente o Davi; Role Own pode utilizar
+- -- Ajustar o export com a nova classe Group
+- -- Em João, só deixar adicionar Paty e Group em João se for do mesmo Davi
 - -- Juntar as migrations

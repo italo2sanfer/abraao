@@ -5,8 +5,38 @@ from .models import Joao, Judite, Paty, Davi, Group
 from .utils import encrypt_password
 
 
-class JuditeAdmin(admin.ModelAdmin):
-    list_display = ["code", "passwd", "get_description", "get_ties"]
+def is_daviown(request):
+    davi = Davi.objects.get(user=request.user)
+    if davi and davi.role == Davi.ROLE_OWN:
+        return True
+    return False
+
+
+class DaviAdmin(admin.ModelAdmin):
+    list_display = ["user", "role"]
+
+
+class WithDaviAdmin(admin.ModelAdmin):
+    def get_profile(self, obj):
+        return mark_safe(f"<span>{obj.davi.user.username}</span>")
+
+    get_profile.short_description = "user"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if is_daviown(request):
+            return qs.filter(davi__user=request.user)
+        return qs
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if is_daviown(request):
+            if db_field.name == "davi":
+                kwargs["queryset"] = Davi.objects.filter(user=request.user)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+class JuditeAdmin(WithDaviAdmin):
+    list_display = ["get_profile", "code", "passwd", "get_description", "get_ties"]
     ordering = ("code",)
     search_fields = ("code", "description")
     list_filter = ["code"]
@@ -38,8 +68,8 @@ class JuditeAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-class PatyAdmin(admin.ModelAdmin):
-    list_display = ["name", "url", "get_description", "get_ties"]
+class PatyAdmin(WithDaviAdmin):
+    list_display = ["get_profile", "name", "url", "get_description", "get_ties"]
     ordering = ("name",)
     search_fields = ("name", "url", "description")
     list_filter = ["name"]
@@ -63,8 +93,9 @@ class PatyAdmin(admin.ModelAdmin):
     get_ties.short_description = "ties"
 
 
-class JoaoAdmin(admin.ModelAdmin):
+class JoaoAdmin(WithDaviAdmin):
     list_display = [
+        "get_profile",
         "show_actions",
         "get_paty",
         "group",
@@ -128,8 +159,8 @@ class DaviAdmin(admin.ModelAdmin):
     list_display = ["user", "role"]
 
 
-class GroupAdmin(admin.ModelAdmin):
-    list_display = ["name", "description"]
+class GroupAdmin(WithDaviAdmin):
+    list_display = ["get_profile", "name", "description"]
 
 
 admin.site.register(Judite, JuditeAdmin)

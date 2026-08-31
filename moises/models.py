@@ -2,13 +2,17 @@ from django.db import models
 
 
 class Davi(models.Model):
+    ROLE_OWN = 'Own'
     ROLE_CHOICES = (
         ("admin", "Admin"),
-        ("Own", "Own"),
+        (ROLE_OWN, ROLE_OWN),
     )
 
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     role = models.CharField("Role", choices=ROLE_CHOICES, max_length=50)
+
+    def __str__(self):
+        return f"{self.user.username} ({self.role})"
 
 
 class Group(models.Model):
