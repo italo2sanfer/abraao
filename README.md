@@ -40,8 +40,9 @@ $ docker run -it --name abraao-go -p 8002:8002  --network abraao-network --env-f
 - OK Criar Profile com user e role
 - OK Criar classe grupo com nome Descrição
 - OK Colocar atributo profile em todas as classes de moises
+- OK Ajustar o export com a nova classe Group
 - -- Disparar forbiden para as views import e export atuais;
   - -- Somente o Davi; Role Own pode utilizar
-- -- Ajustar o export com a nova classe Group
-- -- Em João, só deixar adicionar Paty e Group em João se for do mesmo Davi
-- -- Juntar as migrations
+- -- Em João (Admin form), só deixar adicionar Paty e Group em João se for do mesmo Davi
+- -- Unique por nome e Profile(Davi)
+- -- Limitar os modelos que podem ser importados e exportados nas views import e export
