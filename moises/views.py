@@ -4,16 +4,34 @@ import io
 from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
-from .models import Judite, Paty
+from .models import Davi, Judite, Paty
+from .utils import decrypt_password
+
+
+html_content_403 = """
+    <h1>Erro 403: Acesso Proibido</h1>
+    <p>Você não tem permissão para acessar esta página.</p>
+    <a href="/" style="padding: 10px; background: blue; color: white; text-decoration: none;">Voltar para a Home</a>
+"""
+
+def validate_davi(request):
+    davi = Davi.objects.get(user=request.user)
+    if not davi:
+        return False
+    else:
+        if davi.role != Davi.ROLE_OWN:
+            return False
+    return True
 
 
 @login_required()
 def judite(request, judite_id):
     judite = Judite.objects.get(pk=judite_id)
+    password = decrypt_password(judite.code, judite.passwd)
     title = f"Judite {judite.code}"
     return render(request, "judite.html", locals())
 
@@ -21,6 +39,10 @@ def judite(request, judite_id):
 @require_http_methods(["GET", "POST"])
 @login_required()
 def import_data_model(request):
+
+    if not validate_davi(request):
+        return HttpResponseForbidden(html_content_403)
+
     title = "Import"
     app_config = apps.get_app_config("moises")
     models = [
@@ -82,6 +104,10 @@ def export_data_model(request):
     GET: show form with models select.
     POST: return a CSV file with model data.
     """
+
+    if not validate_davi(request):
+        return HttpResponseForbidden(html_content_403)
+
     title = "Export"
     app_config = apps.get_app_config("moises")
     models = [

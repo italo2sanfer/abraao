@@ -17,7 +17,7 @@ class Davi(models.Model):
 
 class Group(models.Model):
     davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)
-    name = models.CharField("Name", max_length=100, unique=True)
+    name = models.CharField("Name", max_length=100)
     description = models.CharField("Description", max_length=500)
 
     def __str__(self):
@@ -25,7 +25,7 @@ class Group(models.Model):
 
 class Judite(models.Model):
     davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)
-    code = models.CharField("Code", max_length=70, unique=True)
+    code = models.CharField("Code", max_length=70)
     passwd = models.CharField("Passwd", max_length=300, unique=True)
     description = models.CharField("Description", max_length=500, blank=True)
 
