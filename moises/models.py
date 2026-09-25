@@ -2,13 +2,13 @@ from django.db import models
 
 
 class Davi(models.Model):
-    ROLE_OWN = 'Own'
+    ROLE_OWN = "Own"
     ROLE_CHOICES = (
         ("admin", "Admin"),
         (ROLE_OWN, ROLE_OWN),
     )
 
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     role = models.CharField("Role", choices=ROLE_CHOICES, max_length=50)
 
     def __str__(self):
@@ -22,6 +22,7 @@ class Group(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
 
 class Judite(models.Model):
     davi = models.ForeignKey(Davi, verbose_name="Davi", on_delete=models.CASCADE)

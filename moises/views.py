@@ -8,15 +8,15 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
-from .models import Davi, Judite, Paty, Group
+from .models import Davi, Group, Judite, Paty
 from .utils import decrypt_password
-
 
 html_content_403 = """
     <h1>Erro 403: Acesso Proibido</h1>
     <p>Você não tem permissão para acessar esta página.</p>
     <a href="/" style="padding: 10px; background: blue; color: white; text-decoration: none;">Voltar para a Home</a>
 """
+
 
 def validate_davi(request):
     davi = Davi.objects.get(user=request.user)
@@ -39,7 +39,6 @@ def judite(request, judite_id):
 @require_http_methods(["GET", "POST"])
 @login_required()
 def import_data_model(request):
-
     if not validate_davi(request):
         return HttpResponseForbidden(html_content_403)
 
@@ -47,7 +46,8 @@ def import_data_model(request):
     app_config = apps.get_app_config("moises")
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
-        for m in app_config.get_models() if m.__name__ not in ['Davi','Group']
+        for m in app_config.get_models()
+        if m.__name__ not in ["Davi", "Group"]
     ]
     if request.method == "POST":
         csv_file = request.FILES.get("csv_file")
@@ -78,14 +78,19 @@ def import_data_model(request):
                 errors.append(f"Linha {idx}: nenhuma coluna mapeada para o modelo.")
                 continue
             try:
-                davi_str = data_["davi"].split(' ')
+                davi_str = data_["davi"].split(" ")
                 if davi_str[0] == request.user.username:
-                    data_["davi"] = Davi.objects.filter(user__username=davi_str[0]).first()
+                    data_["davi"] = Davi.objects.filter(
+                        user__username=davi_str[0]
+                    ).first()
                     if model.__name__ == "Joao":
-                        data_["paty"] = Paty.objects.filter(davi__user=request.user, name=data_["paty"]).first()
+                        data_["paty"] = Paty.objects.filter(
+                            davi__user=request.user, name=data_["paty"]
+                        ).first()
                         group, created = Group.objects.get_or_create(
-                            davi=Davi.objects.get(user=request.user), name=data_["group"],
-                            defaults={"description": " "}
+                            davi=Davi.objects.get(user=request.user),
+                            name=data_["group"],
+                            defaults={"description": " "},
                         )
                         data_["group"] = group
                     data.append(data_)
@@ -120,7 +125,8 @@ def export_data_model(request):
     app_config = apps.get_app_config("moises")
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
-        for m in app_config.get_models() if m.__name__ not in ['Davi','Group']
+        for m in app_config.get_models()
+        if m.__name__ not in ["Davi", "Group"]
     ]
 
     if request.method == "POST":

@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
@@ -9,7 +8,7 @@ from api.utils import (
     generate_temp_token,
     get_token_remaining_time,
     get_username,
-    is_token_valid
+    is_token_valid,
 )
 from moises.models import Joao, Judite
 from moises.utils import decrypt_password

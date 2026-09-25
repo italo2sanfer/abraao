@@ -1,8 +1,8 @@
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 
-from .models import Joao, Judite, Paty, Davi, Group
+from .models import Davi, Group, Joao, Judite, Paty
 from .utils import encrypt_password
 
 
@@ -65,7 +65,7 @@ class JuditeAdmin(WithDaviAdmin):
 
     def save_model(self, request, obj, form, change):
         if not change:
-            judites = Judite.objects.filter(code=obj.code,davi=obj.davi)
+            judites = Judite.objects.filter(code=obj.code, davi=obj.davi)
             if judites.exists():
                 raise ValidationError(
                     f"Erro de duplicidade: Já existe um registro com o code '{obj.code}'."
@@ -110,15 +110,26 @@ class JoaoAdmin(WithDaviAdmin):
         "get_description",
     ]
     ordering = ("paty",)
-    search_fields = ("paty__name", "paty__url", "group__name", "login", "access", "description")
+    search_fields = (
+        "paty__name",
+        "paty__url",
+        "group__name",
+        "login",
+        "access",
+        "description",
+    )
     list_filter = ["group"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if is_daviown(request):
             if db_field.name == "group":
-                kwargs["queryset"] = Group.objects.filter(davi=Davi.objects.get(user=request.user))
+                kwargs["queryset"] = Group.objects.filter(
+                    davi=Davi.objects.get(user=request.user)
+                )
             if db_field.name == "paty":
-                kwargs["queryset"] = Paty.objects.filter(davi=Davi.objects.get(user=request.user))
+                kwargs["queryset"] = Paty.objects.filter(
+                    davi=Davi.objects.get(user=request.user)
+                )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def show_actions(self, obj):
@@ -146,7 +157,7 @@ class JoaoAdmin(WithDaviAdmin):
         out = "<ul>"
         for part in obj.access.split("<br>"):
             code = part.split(":")
-            judite = Judite.objects.filter(code=code[1],davi=obj.davi)
+            judite = Judite.objects.filter(code=code[1], davi=obj.davi)
             _id, text = 0, "Not found"
             if judite.exists():
                 judite = judite.first()
@@ -169,16 +180,12 @@ class JoaoAdmin(WithDaviAdmin):
     get_description.short_description = "description"
 
 
-class DaviAdmin(admin.ModelAdmin):
-    list_display = ["user", "role"]
-
-
 class GroupAdmin(WithDaviAdmin):
     list_display = ["get_profile", "name", "description"]
 
     def save_model(self, request, obj, form, change):
         if not change:
-            groups = Group.objects.filter(name=obj.name,davi=obj.davi)
+            groups = Group.objects.filter(name=obj.name, davi=obj.davi)
             if groups.exists():
                 raise ValidationError(
                     f"Erro de duplicidade: Já existe um registro com o nome '{obj.name}'."

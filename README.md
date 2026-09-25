@@ -41,17 +41,3 @@ $ docker run -it --name abraao-go -p 8002:8002  --network abraao-network --env-f
 $ make set_passwd CODE=dddd USERNAME=italo2sanfer
 Enter password: Pass$Other!
 ```
-
-# Tasks
-- OK Criar Profile com user e role
-- OK Criar classe grupo com nome Descrição
-- OK Colocar atributo profile em todas as classes de moises
-- OK Ajustar o export com a nova classe Group
-- OK Disparar forbiden para as views import e export atuais;
-  - OK Somente o Davi; Role Own pode utilizar
-- OK Em João (Admin form), só deixar adicionar Paty e Group em João se for do mesmo Davi
-- OK Unique por nome e Profile(Davi)
-- OK Limitar os modelos que podem ser importados e exportados nas views import e export
-- OK Criar migration única
-- -- Ajustar a API e extensão
-- -- Pre-commit
