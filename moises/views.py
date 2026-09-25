@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
-from .models import Davi, Judite, Paty
+from .models import Davi, Judite, Paty, Group
 from .utils import decrypt_password
 
 
@@ -47,7 +47,7 @@ def import_data_model(request):
     app_config = apps.get_app_config("moises")
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
-        for m in app_config.get_models()
+        for m in app_config.get_models() if m.__name__ not in ['Davi','Group']
     ]
     if request.method == "POST":
         csv_file = request.FILES.get("csv_file")
@@ -78,9 +78,17 @@ def import_data_model(request):
                 errors.append(f"Linha {idx}: nenhuma coluna mapeada para o modelo.")
                 continue
             try:
-                if model.__name__ == "Joao":
-                    data_["paty"] = Paty.objects.filter(name=data_["paty"]).first()
-                data.append(data_)
+                davi_str = data_["davi"].split(' ')
+                if davi_str[0] == request.user.username:
+                    data_["davi"] = Davi.objects.filter(user__username=davi_str[0]).first()
+                    if model.__name__ == "Joao":
+                        data_["paty"] = Paty.objects.filter(davi__user=request.user, name=data_["paty"]).first()
+                        group, created = Group.objects.get_or_create(
+                            davi=Davi.objects.get(user=request.user), name=data_["group"],
+                            defaults={"description": " "}
+                        )
+                        data_["group"] = group
+                    data.append(data_)
             except Exception as e:
                 errors.append(f"Line {idx}: {e}")
 
@@ -112,7 +120,7 @@ def export_data_model(request):
     app_config = apps.get_app_config("moises")
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
-        for m in app_config.get_models()
+        for m in app_config.get_models() if m.__name__ not in ['Davi','Group']
     ]
 
     if request.method == "POST":
@@ -144,19 +152,20 @@ def export_data_model(request):
 
         # Write rows
         for obj in model.objects.all():
-            row = []
-            for field in model_fields:
-                try:
-                    val = getattr(obj, field)
-                    # For related objects, use their string representation
-                    if hasattr(val, "__str__") and not isinstance(
-                        val, (str, bytes, int, float, type(None))
-                    ):
-                        val = str(val)
-                except Exception:
-                    val = ""
-                row.append(val)
-            writer.writerow(row)
+            if obj.davi.user == request.user:
+                row = []
+                for field in model_fields:
+                    try:
+                        val = getattr(obj, field)
+                        # For related objects, use their string representation
+                        if hasattr(val, "__str__") and not isinstance(
+                            val, (str, bytes, int, float, type(None))
+                        ):
+                            val = str(val)
+                    except Exception:
+                        val = ""
+                    row.append(val)
+                writer.writerow(row)
 
         return response
 

@@ -51,4 +51,5 @@ Enter password: Pass$Other!
   - OK Somente o Davi; Role Own pode utilizar
 - OK Em João (Admin form), só deixar adicionar Paty e Group em João se for do mesmo Davi
 - OK Unique por nome e Profile(Davi)
-- -- Limitar os modelos que podem ser importados e exportados nas views import e export
+- OK Limitar os modelos que podem ser importados e exportados nas views import e export
+- -- Criar migration única
