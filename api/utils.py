@@ -8,11 +8,12 @@ SECRET_KEY = getattr(settings, "SECRET_KEY", "default-secret")
 CACHE_KEY_LAST_TOKEN = "last_temp_token"
 
 
-def generate_temp_token():
+def generate_temp_token(username):
     """
     Gera um token temporário que expira em 5 minutos.
     """
     payload = {
+        "username": username,
         "exp": int(time.time()) + int(settings.TOKEN_EXPIRY),
         "iat": int(time.time()),
     }
@@ -78,3 +79,15 @@ def get_token_remaining_time(token):
         return {"remaining_time": remaining_time}
     except jwt.InvalidTokenError as e:
         return {"error": f"Token inválido: {str(e)}"}
+
+
+def get_username(token):
+    """
+    Retorna username do token.
+    """
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        username = payload.get("username")
+        return username
+    except jwt.InvalidTokenError as e:
+        return f"error: {str(e)}"
