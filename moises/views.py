@@ -4,16 +4,34 @@ import io
 from django.apps import apps
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods
 
-from .models import Judite, Paty
+from .models import Davi, Group, Judite, Paty
+from .utils import decrypt_password
+
+html_content_403 = """
+    <h1>Erro 403: Acesso Proibido</h1>
+    <p>Você não tem permissão para acessar esta página.</p>
+    <a href="/" style="padding: 10px; background: blue; color: white; text-decoration: none;">Voltar para a Home</a>
+"""
+
+
+def validate_davi(request):
+    davi = Davi.objects.get(user=request.user)
+    if not davi:
+        return False
+    else:
+        if davi.role != Davi.ROLE_OWN:
+            return False
+    return True
 
 
 @login_required()
 def judite(request, judite_id):
     judite = Judite.objects.get(pk=judite_id)
+    password = decrypt_password(judite.code, judite.passwd)
     title = f"Judite {judite.code}"
     return render(request, "judite.html", locals())
 
@@ -21,11 +39,15 @@ def judite(request, judite_id):
 @require_http_methods(["GET", "POST"])
 @login_required()
 def import_data_model(request):
+    if not validate_davi(request):
+        return HttpResponseForbidden(html_content_403)
+
     title = "Import"
     app_config = apps.get_app_config("moises")
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
         for m in app_config.get_models()
+        if m.__name__ not in ["Davi", "Group"]
     ]
     if request.method == "POST":
         csv_file = request.FILES.get("csv_file")
@@ -56,9 +78,22 @@ def import_data_model(request):
                 errors.append(f"Linha {idx}: nenhuma coluna mapeada para o modelo.")
                 continue
             try:
-                if model.__name__ == "Joao":
-                    data_["paty"] = Paty.objects.filter(name=data_["paty"]).first()
-                data.append(data_)
+                davi_str = data_["davi"].split(" ")
+                if davi_str[0] == request.user.username:
+                    data_["davi"] = Davi.objects.filter(
+                        user__username=davi_str[0]
+                    ).first()
+                    if model.__name__ == "Joao":
+                        data_["paty"] = Paty.objects.filter(
+                            davi__user=request.user, name=data_["paty"]
+                        ).first()
+                        group, created = Group.objects.get_or_create(
+                            davi=Davi.objects.get(user=request.user),
+                            name=data_["group"],
+                            defaults={"description": " "},
+                        )
+                        data_["group"] = group
+                    data.append(data_)
             except Exception as e:
                 errors.append(f"Line {idx}: {e}")
 
@@ -82,11 +117,16 @@ def export_data_model(request):
     GET: show form with models select.
     POST: return a CSV file with model data.
     """
+
+    if not validate_davi(request):
+        return HttpResponseForbidden(html_content_403)
+
     title = "Export"
     app_config = apps.get_app_config("moises")
     models = [
         (m.__name__, getattr(m._meta, "verbose_name", m.__name__).title())
         for m in app_config.get_models()
+        if m.__name__ not in ["Davi", "Group"]
     ]
 
     if request.method == "POST":
@@ -118,19 +158,20 @@ def export_data_model(request):
 
         # Write rows
         for obj in model.objects.all():
-            row = []
-            for field in model_fields:
-                try:
-                    val = getattr(obj, field)
-                    # For related objects, use their string representation
-                    if hasattr(val, "__str__") and not isinstance(
-                        val, (str, bytes, int, float, type(None))
-                    ):
-                        val = str(val)
-                except Exception:
-                    val = ""
-                row.append(val)
-            writer.writerow(row)
+            if obj.davi.user == request.user:
+                row = []
+                for field in model_fields:
+                    try:
+                        val = getattr(obj, field)
+                        # For related objects, use their string representation
+                        if hasattr(val, "__str__") and not isinstance(
+                            val, (str, bytes, int, float, type(None))
+                        ):
+                            val = str(val)
+                    except Exception:
+                        val = ""
+                    row.append(val)
+                writer.writerow(row)
 
         return response
 

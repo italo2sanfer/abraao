@@ -1,11 +1,15 @@
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from api.utils import generate_temp_token, get_token_remaining_time, is_token_valid
+from api.utils import (
+    generate_temp_token,
+    get_token_remaining_time,
+    get_username,
+    is_token_valid,
+)
 from moises.models import Joao, Judite
 from moises.utils import decrypt_password
 
@@ -31,7 +35,7 @@ def obtain_token(request):
 
     user = authenticate(username=username, password=password)
     if user is not None and user.is_active:
-        token = generate_temp_token()
+        token = generate_temp_token(username)
         return JsonResponse({"token": token, "expires_in": 300})
     else:
         return JsonResponse({"detail": "Invalid credentials."}, status=401)
@@ -43,8 +47,9 @@ def _check_token(request):
     if auth.startswith("Bearer "):
         token = auth.split(" ", 1)[1]
         if is_token_valid(token):
-            return True
-    return False
+            username = get_username(token)
+            return [True, username]
+    return [False, None]
 
 
 @require_http_methods(["GET", "OPTIONS"])
@@ -64,7 +69,8 @@ def joao_search(request):
         resp["Allow"] = "GET, OPTIONS"
         return resp
 
-    if not _check_token(request):
+    is_token_valid_, username = _check_token(request)
+    if not is_token_valid_:
         return JsonResponse(
             {"detail": "Authentication credentials were not provided or invalid."},
             status=401,
@@ -74,14 +80,16 @@ def joao_search(request):
     if not q:
         return JsonResponse({"detail": "Parâmetro 'q' é obrigatório."}, status=400)
 
+    verify_davi = Q(davi__user__username=username)
     qs = Joao.objects.select_related("paty").filter(
         Q(paty__name__icontains=q)
         | Q(paty__url__icontains=q)
-        | Q(who__icontains=q)
+        | Q(group__name__icontains=q)
         | Q(login__icontains=q)
         | Q(access__icontains=q)
         | Q(description__icontains=q)
     )
+    qs = qs.filter(verify_davi)
 
     results = []
     for obj in qs:
@@ -108,7 +116,7 @@ def joao_search(request):
         results.append(
             {
                 "paty": paty,
-                "who": obj.who,
+                "who": obj.group.name,
                 "login": obj.login,
                 "access": access_with_pw,
                 "description": obj.description,
@@ -124,15 +132,19 @@ def judite_passwd(request, code):
     GET /api/judite/<code>/passwd/  -> {"code": "<code>", "passwd": "<passwd>"}
     Autenticação: header HTTP Authorization: Bearer <token_temporario>
     """
-    if not _check_token(request):
+
+    is_token_valid_, username = _check_token(request)
+    if not is_token_valid_:
         return JsonResponse(
             {"detail": "Authentication credentials were not provided or invalid."},
             status=401,
         )
-
-    obj = get_object_or_404(Judite, code=code)
-    passwd = decrypt_password(obj.code, obj.passwd)
-    return JsonResponse({"code": obj.code, "passwd": passwd})
+    verify_davi = Q(davi__user__username=username)
+    judite = Judite.objects.filter(verify_davi, code=code).first()
+    if not judite:
+        return JsonResponse({"detail": "Not found."}, status=404)
+    passwd = decrypt_password(judite.code, judite.passwd)
+    return JsonResponse({"code": judite.code, "passwd": passwd})
 
 
 @require_GET

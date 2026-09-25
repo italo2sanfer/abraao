@@ -3,6 +3,8 @@ import hashlib
 
 from cryptography.fernet import Fernet
 
+from moises.models import Davi
+
 
 def encrypt_password(code: str, password: str):
     hash_bytes = hashlib.sha256(code.encode()).digest()
@@ -20,8 +22,10 @@ def decrypt_password(code: str, encrypted_password: str):
     return decrypted_password
 
 
-def set_passwd(code: str, password: str):
+def set_passwd(code: str, username: str, password: str):
     from .models import Judite
 
-    judite = Judite.objects.get(code=code)
+    judite = Judite.objects.get(
+        code=code, davi=Davi.objects.get(user__username=username)
+    )
     judite.set_passwd(password)
